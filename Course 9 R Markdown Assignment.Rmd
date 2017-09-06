@@ -1,0 +1,88 @@
+---
+title: 'Course 9: R Markdown Assignment'
+author: "J. Carson"
+date: "September 6, 2017"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+```
+
+```{r, echo=FALSE}
+# NY/NJ Territory Analysis
+
+# Set working directory (for reading and writing files)
+setwd("Q:/Business Intelligence/Projects/Territory Analysis/NY-NJ Territory Analysis/R")
+
+# Load libraries
+suppressWarnings(library("sp"))
+suppressWarnings(library("RODBC"))
+suppressWarnings(library("ggplot2"))
+suppressWarnings(library("rworldmap"))
+suppressWarnings(library("rworldxtra"))
+suppressWarnings(library("ggmap")) # Used to access maps from the Google Maps API
+# library("devtools")
+# library("rMaps")
+suppressWarnings(library("OpenStreetMap"))
+suppressWarnings(library("leaflet"))
+suppressWarnings(library("leaflet.extras"))
+suppressWarnings(library("googleway"))
+suppressWarnings(library("sp"))
+suppressWarnings(library("rgeos"))
+
+# # Create database connection
+# SSMS_Connection <- odbcConnect("R_SQL_Server", uid = "jcarson")
+# # Run SQL query
+# Terr_Data <- sqlQuery(SSMS_Connection, "SELECT TOP 100 * FROM T2Online.dbo.AgreeAgreementMain")
+# # Close database connection
+# close(SSMS_Connection)
+
+# Read in csv (make sure it has header)
+Terr_Data <- read.csv("NY-NJ Territory Analysis.csv", header = TRUE)
+
+# Check data
+# str(Terr_Data)
+# head(Terr_Data)
+
+
+# Find centroid
+spdf <- Terr_Data
+coordinates(spdf) <- c("Lng", "Lat")
+# gCentroid(spdf)
+
+Terr_Data$Center_Lat <- 40.7219
+Terr_Data$Center_Lng <- -74.0730
+
+# Farmingdale Lat/Long 
+Terr_Data$Farm_Lat <- 40.75136
+Terr_Data$Farm_Lng <- -73.41611
+
+# South Hackensack Lat/Long
+Terr_Data$Hack_Lat <- 40.86913
+Terr_Data$Hack_Lng <- -74.05317
+
+# Using Leaflet
+Customer_leaflet <- leaflet(Terr_Data) %>%
+  addTiles() %>%  # Add default OpenStreeMap tiles
+  # addMarkers(popup = Revenue)
+  addCircles(~Lng, ~Lat, popup = ~Revenue, label = ~as.character(Revenue)) %>%
+  addHeatmap(lng = ~Lng, lat = ~Lat, intensity = ~Revenue, blur = 20, max = .05, radius = 25)
+Customer_leaflet
+
+# googleway
+# map_key <- "AIzaSyAsdXA9bylNFlCNSLbnkW_aFGbO7sDzg0M"
+# google_map(key = map_key, data = Terr_Data) %>%
+#   add_heatmap(lat = "Lat", lon = "Lng", weight = "Revenue", option_radius = 0.025) %>%
+#   add_circles(lat = "Lat", lon = "Lng", info_window = "Revenue", stroke_colour = "blue", fill_colour = "blue", radius = 175) %>%
+#   # add_markers(lat = "Center_Lat", lon = "Center_Lng") %>%
+#   add_markers(lat = "Farm_Lat", lon = "Farm_Lng") %>%
+#   add_markers(lat = "Hack_Lat", lon = "Hack_Lng")
+
+
+
+```
+
+
